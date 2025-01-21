@@ -1,0 +1,42 @@
+[package]
+name = "multi-transfer-dcdt"
+version = "0.0.0"
+authors = ["you"]
+edition = "2018"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies.transaction]
+path = "../common/transaction"
+
+[dependencies.tx-batch-module]
+path = "../common/tx-batch-module"
+
+[dependencies.eth-address]
+path = "../common/eth-address"
+
+[dependencies.max-bridged-amount-module]
+path = "../common/max-bridged-amount-module"
+
+[dependencies.bridged-tokens-wrapper]
+path = "../bridged-tokens-wrapper"
+
+[dependencies.bridge-proxy]
+path = "../bridge-proxy"
+
+[dependencies.dcdt-safe]
+path = "../dcdt-safe"
+
+[dependencies.token-module]
+path = "../common/token-module"
+
+[dependencies.dharitri-sc]
+version = "=0.52.3"
+
+[dependencies.dharitri-sc-modules]
+version = "=0.52.3"
+
+[dev-dependencies.dharitri-sc-scenario]
+version = "=0.52.3"

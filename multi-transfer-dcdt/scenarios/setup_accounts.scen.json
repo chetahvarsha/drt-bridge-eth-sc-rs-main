@@ -1,0 +1,331 @@
+{
+    "name": "setup accounts",
+    "steps": [
+        {
+            "step": "setState",
+            "accounts": {
+                "address:owner": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "dcdt": {
+                        "str:BRIDGE-123456": {
+                            "balance": "10,000,000"
+                        }
+                    },
+                    "storage": {}
+                },
+                "address:user1": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {}
+                },
+                "address:user2": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {}
+                },
+                "sc:dcdt-safe": {
+                    "nonce": "0",
+                    "dcdt": {
+                        "str:BRIDGE-123456": {
+                            "balance": "1,000,000",
+                            "roles": [
+                                "DCDTRoleLocalMint",
+                                "DCDTRoleLocalBurn"
+                            ]
+                        },
+                        "str:WRAPPED-123456": {
+                            "balance": "1,000,000",
+                            "roles": [
+                                "DCDTRoleLocalMint",
+                                "DCDTRoleLocalBurn"
+                            ]
+                        }
+                    },
+                    "storage": {
+                        "str:feeEstimatorContractAddress": "0x0000000000000000000000000000000000000000000000000000000000000000"
+                    },
+                    "code": "file:../../dcdt-safe/output/dcdt-safe.wasm",
+                    "owner": "address:owner"
+                }
+            },
+            "newAddresses": [
+                {
+                    "creatorAddress": "address:owner",
+                    "creatorNonce": "0",
+                    "newAddress": "sc:multi_transfer_dcdt"
+                },
+                {
+                    "creatorAddress": "address:owner",
+                    "creatorNonce": "1",
+                    "newAddress": "sc:bridge-proxy"
+                },
+                {
+                    "creatorAddress": "address:owner",
+                    "creatorNonce": "2",
+                    "newAddress": "sc:dcdt-safe"
+                }
+            ]
+        },
+        {
+            "step": "scDeploy",
+            "txId": "deploy",
+            "tx": {
+                "from": "address:owner",
+                "contractCode": "file:../output/multi-transfer-dcdt.wasm",
+                "value": "0",
+                "arguments": [],
+                "gasLimit": "20,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scDeploy",
+            "txId": "deploy-bridge-proxy",
+            "tx": {
+                "from": "address:owner",
+                "contractCode": "file:../../bridge-proxy/output/bridge-proxy.wasm",
+                "value": "0",
+                "arguments": [
+                    "sc:multi_transfer_dcdt"
+                ],
+                "gasLimit": "20,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "add-bridge-proxy-to-multi-transfer",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:multi_transfer_dcdt",
+                "function": "setBridgeProxyContractAddress",
+                "arguments": [
+                    "sc:bridge-proxy"
+                ],
+                "gasLimit": "5,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "add-token-1",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:dcdt-safe",
+                "value": "0",
+                "function": "addTokenToWhitelist",
+                "arguments": [
+                    "str:BRIDGE-123456",
+                    "str:BRIDGE",
+                    "true",
+                    "false",
+                    "0",
+                    "0",
+                    "0",
+                    "150,000"
+                ],
+                "gasLimit": "50,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "add-token-1",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:dcdt-safe",
+                "value": "0",
+                "function": "addTokenToWhitelist",
+                "arguments": [
+                    "str:WRAPPED-123456",
+                    "str:WRAPPED",
+                    "true",
+                    "false",
+                    "0",
+                    "0",
+                    "0",
+                    "1,000"
+                ],
+                "gasLimit": "50,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "set-multi-transfer-contract-address",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:dcdt-safe",
+                "value": "0",
+                "function": "setMultiTransferContractAddress",
+                "arguments": [
+                    "sc:multi_transfer_dcdt"
+                ],
+                "gasLimit": "50,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "add-bridge-proxy-to-multi-transfer",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:multi_transfer_dcdt",
+                "function": "setDcdtSafeContractAddress",
+                "arguments": [
+                    "sc:dcdt-safe"
+                ],
+                "gasLimit": "5,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "address:owner": {
+                    "nonce": "7",
+                    "balance": "0",
+                    "dcdt": {
+                        "str:BRIDGE-123456": {
+                            "balance": "10,000,000"
+                        }
+                    },
+                    "storage": {}
+                },
+                "address:user1": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {}
+                },
+                "address:user2": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {}
+                },
+                "sc:multi_transfer_dcdt": {
+                    "code": "file:../output/multi-transfer-dcdt.wasm",
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {
+                        "str:firstBatchId": "1",
+                        "str:lastBatchId": "1",
+                        "str:bridgeProxyContractAddress": "sc:bridge-proxy",
+                        "str:maxTxBatchSize": "10",
+                        "str:maxTxBatchBlockDuration": "0xffffffffffffffff",
+                        "str:dcdtSafeContractAddress": "sc:dcdt-safe"
+                    }
+                },
+                "sc:bridge-proxy": {
+                    "code": "file:../../bridge-proxy/output/bridge-proxy.wasm",
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": "*"
+                },
+                "sc:dcdt-safe": {
+                    "code": "file:../../dcdt-safe/output/dcdt-safe.wasm",
+                    "nonce": "0",
+                    "balance": "0",
+                    "dcdt": {
+                        "str:BRIDGE-123456": {
+                            "balance": "1,000,000",
+                            "roles": [
+                                "DCDTRoleLocalMint",
+                                "DCDTRoleLocalBurn"
+                            ]
+                        },
+                        "str:WRAPPED-123456": {
+                            "balance": "1,000,000",
+                            "roles": [
+                                "DCDTRoleLocalMint",
+                                "DCDTRoleLocalBurn"
+                            ]
+                        }
+                    },
+                    "storage": "*"
+                }
+            }
+        },
+        {
+            "step": "setState",
+            "comment": "setting local mint role",
+            "accounts": {
+                "sc:multi_transfer_dcdt": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {
+                        "str:maxTxBatchSize": "10",
+                        "str:maxTxBatchBlockDuration": "3,600",
+                        "str:firstBatchId": "1",
+                        "str:lastBatchId": "1",
+                        "str:bridgeProxyContractAddress": "sc:bridge-proxy",
+                        "str:dcdtSafeContractAddress": "sc:dcdt-safe"
+                    },
+                    "code": "file:../output/multi-transfer-dcdt.wasm",
+                    "owner": "address:owner"
+                }
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "unpause",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:bridge-proxy",
+                "function": "unpause",
+                "arguments": [],
+                "gasLimit": "100,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "out": [],
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        }
+    ]
+}

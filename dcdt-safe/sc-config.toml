@@ -1,0 +1,13 @@
+[settings]
+
+[[proxy]]
+path = "../bridge-proxy/src/dcdt_safe_proxy.rs"
+
+[[proxy]]
+path = "../bridged-tokens-wrapper/src/dcdt_safe_proxy.rs"
+
+[[proxy]]
+path = "../multi-transfer-dcdt/src/dcdt_safe_proxy.rs"
+
+[[proxy]]
+path = "../multisig/src/dcdt_safe_proxy.rs"

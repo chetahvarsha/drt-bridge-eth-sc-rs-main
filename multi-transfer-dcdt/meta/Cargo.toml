@@ -1,0 +1,15 @@
+[package]
+name = "multi-transfer-dcdt-meta"
+version = "0.0.0"
+authors = ["you"]
+edition = "2018"
+publish = false
+
+[dev-dependencies]
+
+[dependencies.multi-transfer-dcdt]
+path = ".."
+
+[dependencies.dharitri-sc-meta-lib]
+version = "=0.52.3"
+default-features = false

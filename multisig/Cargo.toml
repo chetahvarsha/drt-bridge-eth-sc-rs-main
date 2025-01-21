@@ -1,0 +1,51 @@
+[package]
+name = "multisig"
+version = "0.0.0"
+authors = ["Dharitri <contact@dharitri.org>"]
+edition = "2018"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies.transaction]
+path = "../common/transaction"
+
+[dependencies.eth-address]
+path = "../common/eth-address"
+
+[dependencies.fee-estimator-module]
+path = "../common/fee-estimator-module"
+
+[dependencies.token-module]
+path = "../common/token-module"
+
+[dependencies.tx-batch-module]
+path = "../common/tx-batch-module"
+
+[dependencies.max-bridged-amount-module]
+path = "../common/max-bridged-amount-module"
+
+[dependencies.dcdt-safe]
+path = "../dcdt-safe"
+
+[dependencies.multi-transfer-dcdt]
+path = "../multi-transfer-dcdt"
+
+[dependencies.bridged-tokens-wrapper]
+path = "../bridged-tokens-wrapper"
+
+[dependencies.bridge-proxy]
+path = "../bridge-proxy"
+
+[dependencies.dharitri-sc]
+version = "=0.52.3"
+
+[dependencies.dharitri-price-aggregator-sc]
+version = "=0.52.0"
+
+[dependencies.dharitri-sc-modules]
+version = "=0.52.3"
+
+[dev-dependencies.dharitri-sc-scenario]
+version = "=0.52.3"

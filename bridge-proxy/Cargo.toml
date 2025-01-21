@@ -1,0 +1,43 @@
+[package]
+name = "bridge-proxy"
+version = "0.0.0"
+authors = ["Dharitri <contact@dharitri.org>"]
+edition = "2018"
+publish = false
+
+[lib]
+path = "src/bridge-proxy.rs"
+
+[dependencies.transaction]
+path = "../common/transaction"
+
+[dependencies.eth-address]
+path = "../common/eth-address"
+
+[dependencies.token-module]
+path = "../common/token-module"
+
+[dependencies.tx-batch-module]
+path = "../common/tx-batch-module"
+
+[dependencies.dcdt-safe]
+path = "../dcdt-safe"
+
+[dependencies.bridged-tokens-wrapper]
+path = "../bridged-tokens-wrapper"
+
+[dependencies.dharitri-sc]
+version = "=0.52.3"
+
+[dependencies.dharitri-sc-modules]
+version = "0.52.3"
+
+[dependencies.crowdfunding-dcdt]
+git = "https://github.com/dharitri/drt-contracts-rs"
+rev = "d91bbff"
+
+[dev-dependencies]
+num-bigint = "0.4.2"
+
+[dev-dependencies.dharitri-sc-scenario]
+version = "=0.52.3"

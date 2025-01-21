@@ -1,0 +1,379 @@
+{
+    "name": "setup accounts",
+    "steps": [
+        {
+            "step": "externalSteps",
+            "path": "../../price-aggregator/scenarios/oracle_gwei_in_eth_and_rewa_submit.scen.json"
+        },
+        {
+            "step": "setState",
+            "comment": "simulate child contracts deploy + setting local roles + change ownership. Changing ownership will be done after the multisig deploy in the real setup, but this is way less verbose in denali.",
+            "accounts": {
+                "sc:bridge_proxy": {
+                    "code": "file:../../bridge-proxy/output/bridge-proxy.wasm",
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {
+                        "str:multiTransferAddress": "sc:multi_transfer"
+                    }
+                },
+                "sc:multi_transfer": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "dcdt": {
+                        "str:WREWA-123456": {
+                            "balance": "0",
+                            "roles": [
+                                "DCDTRoleLocalMint"
+                            ]
+                        },
+                        "str:ETH-123456": {
+                            "balance": "0",
+                            "roles": [
+                                "DCDTRoleLocalMint"
+                            ]
+                        }
+                    },
+                    "storage": {
+                        "str:dcdtSafeContractAddress": "sc:dcdt_safe",
+                        "str:bridgeProxyContractAddress": "sc:bridge_proxy",
+                        "str:maxTxBatchSize": "10",
+                        "str:maxTxBatchBlockDuration": "3,600",
+                        "str:maxBridgedAmount|nested:str:WREWA-123456": "100,000,000,000",
+                        "str:maxBridgedAmount|nested:str:ETH-123456": "100,000,000,000",
+                        "str:firstBatchId": "1",
+                        "str:lastBatchId": "1"
+                    },
+                    "owner": "sc:multisig",
+                    "code": "file:../../multi-transfer-dcdt/output/multi-transfer-dcdt.wasm"
+                },
+                "sc:dcdt_safe": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "dcdt": {
+                        "str:WREWA-123456": {
+                            "balance": "0",
+                            "roles": [
+                                "DCDTRoleLocalMint",
+                                "DCDTRoleLocalBurn"
+                            ]
+                        },
+                        "str:ETH-123456": {
+                            "balance": "0",
+                            "roles": [
+                                "DCDTRoleLocalMint",
+                                "DCDTRoleLocalBurn"
+                            ]
+                        }
+                    },
+                    "storage": {
+                        "str:multiTransferContractAddress": "sc:multi_transfer",
+                        "str:feeEstimatorContractAddress": "sc:price_aggregator",
+                        "str:bridgedTokensWrapperAddress": "sc:bridged_tokens_wrapper",
+                        "str:maxTxBatchSize": "10",
+                        "str:maxTxBatchBlockDuration": "100",
+                        "str:ethTxGasLimit": "150,000",
+                        "str:firstBatchId": "1",
+                        "str:lastBatchId": "1",
+                        "str:tokenTicker|nested:str:GWEI": "str:GWEI",
+                        "str:tokenTicker|nested:str:WREWA-123456": "str:WREWA",
+                        "str:tokenTicker|nested:str:ETH-123456": "str:ETH",
+                        "str:tokenWhitelist.index|nested:str:WREWA-123456": "1",
+                        "str:tokenWhitelist.item|u32:1": "str:WREWA-123456",
+                        "str:tokenWhitelist.index|nested:str:ETH-123456": "2",
+                        "str:tokenWhitelist.item|u32:2": "str:ETH-123456",
+                        "str:tokenWhitelist.len": "2",
+                        "str:mintBalances|nested:str:WREWA-123456": "500,000,000,000",
+                        "str:mintBalances|nested:str:ETH-123456": "500,000,000,000"
+                    },
+                    "owner": "sc:multisig",
+                    "code": "file:../../dcdt-safe/output/dcdt-safe.wasm"
+                }
+            }
+        },
+        {
+            "step": "setState",
+            "accounts": {
+                "address:owner": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "storage": {}
+                },
+                "address:relayer1": {
+                    "nonce": "0",
+                    "balance": "1000",
+                    "storage": {}
+                },
+                "address:relayer2": {
+                    "nonce": "0",
+                    "balance": "1000",
+                    "storage": {}
+                },
+                "address:user": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "dcdt": {
+                        "str:WREWA-123456": "100,000,000,000",
+                        "str:ETH-123456": "200,000,000,000"
+                    },
+                    "storage": {}
+                },
+                "sc:rewa_dcdt_swap": {
+                    "nonce": "0",
+                    "balance": "0",
+                    "code": "sc:rewa_dcdt_swap"
+                }
+            },
+            "newAddresses": [
+                {
+                    "creatorAddress": "address:owner",
+                    "creatorNonce": "0",
+                    "newAddress": "sc:multisig"
+                }
+            ]
+        },
+        {
+            "step": "scDeploy",
+            "txId": "deploy",
+            "tx": {
+                "from": "address:owner",
+                "contractCode": "file:../output/multisig.wasm",
+                "value": "0",
+                "arguments": [
+                    "sc:dcdt_safe",
+                    "sc:multi_transfer",
+                    "sc:bridge_proxy",
+                    "1000",
+                    "500",
+                    "2",
+                    "address:relayer1",
+                    "address:relayer2"
+                ],
+                "gasLimit": "40,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "sc:multisig": {
+                    "nonce": "*",
+                    "balance": "0",
+                    "storage": {
+                        "str:dcdtSafeAddress": "sc:dcdt_safe",
+                        "str:multiTransferDcdtAddress": "sc:multi_transfer",
+                        "str:proxyAddress": "sc:bridge_proxy",
+                        "str:num_board_members": "2",
+                        "str:quorum": "2",
+                        "str:requiredStakeAmount": "1000",
+                        "str:slashAmount": "500",
+                        "str:user_role|u32:1": "1",
+                        "str:user_role|u32:2": "1",
+                        "str:user_address_to_id|address:relayer1": "1",
+                        "str:user_address_to_id|address:relayer2": "2",
+                        "str:user_count": "2",
+                        "str:user_id_to_address|u32:1": "address:relayer1",
+                        "str:user_id_to_address|u32:2": "address:relayer2",
+                        "str:pause_module:paused": "true"
+                    },
+                    "code": "file:../output/multisig.wasm"
+                },
+                "+": {}
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "first-relayer-stake",
+            "tx": {
+                "from": "address:relayer1",
+                "to": "sc:multisig",
+                "value": "1000",
+                "function": "stake",
+                "arguments": [],
+                "gasLimit": "35,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "out": [],
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scQuery",
+            "txId": "getAllStakedRelayers - only one staked",
+            "tx": {
+                "to": "sc:multisig",
+                "function": "getAllStakedRelayers",
+                "arguments": []
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "out": [
+                    "address:relayer1"
+                ]
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "second-relayer-stake",
+            "tx": {
+                "from": "address:relayer2",
+                "to": "sc:multisig",
+                "value": "1000",
+                "function": "stake",
+                "arguments": [],
+                "gasLimit": "35,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "out": [],
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "checkState",
+            "accounts": {
+                "address:relayer1": {
+                    "nonce": "1",
+                    "balance": "0",
+                    "storage": {}
+                },
+                "address:relayer2": {
+                    "nonce": "1",
+                    "balance": "0",
+                    "storage": {}
+                },
+                "sc:multisig": {
+                    "nonce": "*",
+                    "balance": "2000",
+                    "storage": {
+                        "str:amountStaked|address:relayer1": "1000",
+                        "str:amountStaked|address:relayer2": "1000",
+                        "+": ""
+                    },
+                    "code": "file:../output/multisig.wasm"
+                },
+                "+": {}
+            }
+        },
+        {
+            "step": "scQuery",
+            "txId": "getAllStakedRelayers - both staked",
+            "tx": {
+                "to": "sc:multisig",
+                "function": "getAllStakedRelayers",
+                "arguments": []
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "out": [
+                    "address:relayer1",
+                    "address:relayer2"
+                ]
+            }
+        },
+        {
+            "step": "scQuery",
+            "txId": "get-all-known-tokens",
+            "tx": {
+                "to": "sc:dcdt_safe",
+                "function": "getAllKnownTokens"
+            },
+            "expect": {
+                "out": [
+                    "str:WREWA-123456",
+                    "str:ETH-123456"
+                ]
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "unpause multisig",
+            "tx": {
+                "from": "address:owner",
+                "to": "sc:multisig",
+                "function": "unpause",
+                "arguments": [],
+                "gasLimit": "100,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "out": [],
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "add-token-1",
+            "tx": {
+                "from": "sc:multisig",
+                "to": "sc:dcdt_safe",
+                "value": "0",
+                "function": "addTokenToWhitelist",
+                "arguments": [
+                    "str:WREWA-123456",
+                    "str:WREWA",
+                    "true",
+                    "false",
+                    "0",
+                    "1000000000000",
+                    "0",
+                    "500,000"
+                ],
+                "gasLimit": "50,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        },
+        {
+            "step": "scCall",
+            "txId": "add-token-1",
+            "tx": {
+                "from": "sc:multisig",
+                "to": "sc:dcdt_safe",
+                "value": "0",
+                "function": "addTokenToWhitelist",
+                "arguments": [
+                    "str:ETH-123456",
+                    "str:ETH",
+                    "true",
+                    "false",
+                    "0",
+                    "1000000000000",
+                    "0",
+                    "500,000"
+                ],
+                "gasLimit": "50,000,000",
+                "gasPrice": "0"
+            },
+            "expect": {
+                "status": "0",
+                "message": "",
+                "gas": "*",
+                "refund": "*"
+            }
+        }
+    ]
+}
